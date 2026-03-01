@@ -41,6 +41,10 @@ COPY --from=frontend-builder /app/frontend/build /app/frontend/build
 COPY docker-compose.yml .
 COPY .gitignore .
 
+# Copy entrypoint script
+COPY entrypoint.sh /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh
+
 # Set environment variables
 ENV NODE_ENV=production \
     PORT=5000 \
@@ -49,17 +53,9 @@ ENV NODE_ENV=production \
 # Expose ports
 EXPOSE 5000 3000
 
-# Create startup script
-RUN echo '#!/bin/sh' > /app/start.sh && \
-    echo 'cd /app/backend' >> /app/start.sh && \
-    echo 'node src/server.js &' >> /app/start.sh && \
-    echo 'cd /app' >> /app/start.sh && \
-    echo 'serve -s frontend/build -l 3000' >> /app/start.sh && \
-    chmod +x /app/start.sh
-
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
     CMD wget --quiet --tries=1 --spider http://localhost:5000/health || exit 1
 
-# Start application
-CMD ["/app/start.sh"]
+# Start application with entrypoint
+ENTRYPOINT ["/bin/bash", "-c", "source /app/entrypoint.sh"]
