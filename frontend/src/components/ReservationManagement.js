@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { reservationService, guestService, roomService } from '../services/api';
+import { reservationService, guestService } from '../services/api';
 import '../styles/components.css';
 
 export default function ReservationManagement() {

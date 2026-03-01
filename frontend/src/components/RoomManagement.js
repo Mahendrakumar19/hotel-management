@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { roomService } from '../services/api';
 import '../styles/components.css';
 
@@ -7,11 +7,7 @@ export default function RoomManagement() {
   const [filter, setFilter] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    loadRooms();
-  }, [filter]);
-
-  const loadRooms = async () => {
+  const loadRooms = useCallback(async () => {
     setLoading(true);
     try {
       const data = await roomService.getAllRooms(filter);
@@ -21,7 +17,13 @@ export default function RoomManagement() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [filter]);
+
+  useEffect(() => {
+    loadRooms();
+  }, [loadRooms]);
+
+
 
   const handleStatusChange = async (roomId, newStatus) => {
     try {

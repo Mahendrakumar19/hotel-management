@@ -6,7 +6,6 @@ export default function CheckInCheckOut() {
   const [activeCheckIns, setActiveCheckIns] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showCheckIn, setShowCheckIn] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
   const [checkInData, setCheckInData] = useState({
     reservationNumber: '',
     roomId: '',

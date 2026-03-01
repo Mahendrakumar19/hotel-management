@@ -15,7 +15,7 @@ export default function App() {
 
   useEffect(() => {
     // Check if user is already logged in
-    const user = authService.getCurrentUser();
+    authService.getCurrentUser();
     setIsInitialized(true);
   }, []);
 
