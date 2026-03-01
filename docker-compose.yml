@@ -1,0 +1,69 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: hotel_db
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password_change_me
+      MYSQL_DATABASE: hotel_management
+      MYSQL_USER: hoteluser
+      MYSQL_PASSWORD: hotel_password_change_me
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - hotel_network
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: hotel_api
+    environment:
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_NAME: hotel_management
+      DB_USER: hoteluser
+      DB_PASSWORD: hotel_password_change_me
+      PORT: 5000
+      NODE_ENV: production
+      JWT_SECRET: change_this_secret_key_in_production
+      JWT_EXPIRY: 7d
+    ports:
+      - "5000:5000"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - hotel_network
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: hotel_ui
+    environment:
+      REACT_APP_API_URL: http://localhost:5000/api
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    networks:
+      - hotel_network
+    restart: unless-stopped
+
+volumes:
+  mysql_data:
+    driver: local
+
+networks:
+  hotel_network:
+    driver: bridge
