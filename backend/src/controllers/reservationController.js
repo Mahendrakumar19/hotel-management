@@ -6,8 +6,12 @@ class ReservationController {
     try {
       const { guestId, roomId, checkInDate, checkOutDate, numberOfGuests, advancePayment, notes } = req.body;
 
-      if (!guestId || !checkInDate || !checkOutDate) {
-        return res.status(400).json({ error: 'Missing required fields: guestId, checkInDate, checkOutDate' });
+      if (!guestId || !checkInDate || !checkOutDate || !roomId) {
+        return res.status(400).json({ error: 'Missing required fields: guestId, roomId, checkInDate, checkOutDate' });
+      }
+
+      if (roomId.trim() === '') {
+        return res.status(400).json({ error: 'Room selection is required' });
       }
 
       const reservation = await reservationService.createReservation(

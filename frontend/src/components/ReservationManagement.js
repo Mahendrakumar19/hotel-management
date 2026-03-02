@@ -48,8 +48,10 @@ export default function ReservationManagement() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    try {
-      // First create guest
+    try {      if (!formData.roomId || formData.roomId.trim() === '') {
+        alert('Please select a room');
+        return;
+      }      // First create guest
       const guest = await guestService.createGuest({
         firstName: formData.firstName,
         lastName: formData.lastName,
