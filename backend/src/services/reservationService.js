@@ -7,6 +7,20 @@ class ReservationService {
     try {
       await conn.beginTransaction();
 
+      // Validate user exists
+      const userExists = await conn.query('SELECT id FROM users WHERE id = ?', [userId]);
+      if (!userExists[0] || userExists[0].length === 0) {
+        throw new Error('Invalid user ID - user does not exist');
+      }
+
+      // Validate room exists and is available
+      if (roomId && roomId.trim() !== '') {
+        const roomExists = await conn.query('SELECT id FROM rooms WHERE id = ?', [roomId]);
+        if (!roomExists[0] || roomExists[0].length === 0) {
+          throw new Error('Invalid room ID - room does not exist');
+        }
+      }
+
       // Generate reservation number
       const reservationNumber = `RES-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
       const reservationId = uuidv4();

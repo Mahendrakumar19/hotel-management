@@ -13,9 +13,9 @@ class BillingService {
 
       // Create bill
       await conn.query(
-        `INSERT INTO bills (id, bill_number, guest_id, room_id, settlement_mode, bill_status, created_by)
-         VALUES (?, ?, ?, ?, ?, ?, ?)`,
-        [billId, billNumber, guestId, roomId, settlementMode, 'open', userId]
+        `INSERT INTO bills (id, bill_number, guest_id, reservation_id, check_in_id, subtotal, tax, discount, total, status, payment_method, created_by)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [billId, billNumber, guestId, null, null, totalAmount, 0, 0, totalAmount, 'pending', settlementMode, userId]
       );
 
       const billResult = await conn.query(
@@ -37,12 +37,12 @@ class BillingService {
 
       // Update bill total
       await conn.query(
-        `UPDATE bills SET total_amount = ? WHERE id = ?`,
-        [totalAmount, billId]
+        `UPDATE bills SET total = ?, subtotal = ? WHERE id = ?`,
+        [totalAmount, totalAmount, billId]
       );
 
       await conn.commit();
-      return { ...billResult[0][0], total_amount: totalAmount };
+      return { ...billResult[0][0], total: totalAmount };
     } catch (error) {
       await conn.rollback();
       throw error;
@@ -83,9 +83,9 @@ class BillingService {
 
       await conn.query(
         `UPDATE bills
-         SET bill_status = ?, settled_by = ?, settled_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP
+         SET status = ?, updated_at = CURRENT_TIMESTAMP
          WHERE id = ?`,
-        ['settled', userId, billId]
+        ['paid', billId]
       );
 
       const result = await conn.query(
@@ -109,8 +109,8 @@ class BillingService {
 
   async getOpenBills(guestId = null) {
     try {
-      let query = 'SELECT * FROM bills WHERE bill_status = ?';
-      const params = ['open'];
+      let query = 'SELECT * FROM bills WHERE status = ?';
+      const params = ['pending'];
 
       if (guestId) {
         query += ' AND guest_id = ?';
@@ -165,7 +165,7 @@ class BillingService {
       const newTotal = totalResult[0][0].sum || 0;
 
       await conn.query(
-        'UPDATE bills SET total_amount = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
+        'UPDATE bills SET total = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
         [newTotal, billId]
       );
 
@@ -183,12 +183,12 @@ class BillingService {
     try {
       const result = await pool.query(
         `SELECT 
-          SUM(total_amount) as total_revenue,
+          SUM(total) as total_revenue,
           COUNT(*) as total_bills,
-          SUM(CASE WHEN settlement_mode = 'cash' THEN total_amount ELSE 0 END) as cash_revenue,
-          SUM(CASE WHEN settlement_mode = 'card' THEN total_amount ELSE 0 END) as card_revenue,
-          SUM(CASE WHEN settlement_mode = 'upi' THEN total_amount ELSE 0 END) as upi_revenue,
-          SUM(CASE WHEN settlement_mode = 'room_charge' THEN total_amount ELSE 0 END) as room_charge_revenue
+          SUM(CASE WHEN payment_method = 'cash' THEN total ELSE 0 END) as cash_revenue,
+          SUM(CASE WHEN payment_method = 'card' THEN total ELSE 0 END) as card_revenue,
+          SUM(CASE WHEN payment_method = 'upi' THEN total ELSE 0 END) as upi_revenue,
+          SUM(CASE WHEN payment_method = 'other' THEN total ELSE 0 END) as other_revenue
          FROM bills
          WHERE DATE(created_at) = ?`,
         [date]

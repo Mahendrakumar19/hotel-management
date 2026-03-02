@@ -10,7 +10,7 @@ class CheckInService {
       // Create check-in record
       const checkInId = uuidv4();
       await conn.query(
-        `INSERT INTO check_ins (id, reservation_id, room_id, guest_id, check_in_time, checked_in_by, notes)
+        `INSERT INTO check_ins (id, reservation_id, room_id, guest_id, check_in_time, created_by, notes)
          VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP, ?, ?)`,
         [checkInId, reservationId, roomId, guestId, userId, notes]
       );
@@ -77,7 +77,7 @@ class CheckInService {
       // Update check-in record
       await conn.query(
         `UPDATE check_ins 
-         SET check_out_time = CURRENT_TIMESTAMP, actual_checkout_date = CURDATE(), updated_at = CURRENT_TIMESTAMP
+         SET check_out_time = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP
          WHERE id = ?`,
         [checkInId]
       );

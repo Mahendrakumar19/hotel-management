@@ -18,11 +18,11 @@ class ReportingService {
       // Get revenue data
       const revenueData = await pool.query(
         `SELECT 
-          COALESCE(SUM(total_amount), 0) as total_revenue,
-          COALESCE(SUM(CASE WHEN settlement_mode = 'cash' THEN total_amount ELSE 0 END), 0) as cash_revenue,
-          COALESCE(SUM(CASE WHEN settlement_mode = 'card' THEN total_amount ELSE 0 END), 0) as card_revenue,
-          COALESCE(SUM(CASE WHEN settlement_mode = 'upi' THEN total_amount ELSE 0 END), 0) as upi_revenue,
-          COALESCE(SUM(CASE WHEN settlement_mode = 'room_charge' THEN total_amount ELSE 0 END), 0) as room_charge_revenue,
+          COALESCE(SUM(total), 0) as total_revenue,
+          COALESCE(SUM(CASE WHEN payment_method = 'cash' THEN total ELSE 0 END), 0) as cash_revenue,
+          COALESCE(SUM(CASE WHEN payment_method = 'card' THEN total ELSE 0 END), 0) as card_revenue,
+          COALESCE(SUM(CASE WHEN payment_method = 'upi' THEN total ELSE 0 END), 0) as upi_revenue,
+          COALESCE(SUM(CASE WHEN payment_method = 'other' THEN total ELSE 0 END), 0) as other_revenue,
           COUNT(*) as total_bills
          FROM bills
          WHERE DATE(created_at) = ?`,
@@ -58,7 +58,7 @@ class ReportingService {
       const result = await pool.query(
         `SELECT 
           DATE(created_at) as date,
-          COALESCE(SUM(total_amount), 0) as daily_revenue,
+          COALESCE(SUM(total), 0) as total_revenue,
           COUNT(*) as bills_count
          FROM bills
          WHERE created_at >= ? AND created_at <= ?
@@ -70,9 +70,9 @@ class ReportingService {
       // Calculate totals
       const totals = await pool.query(
         `SELECT 
-          COALESCE(SUM(total_amount), 0) as total_revenue,
+          COALESCE(SUM(total), 0) as total_revenue,
           COUNT(*) as total_bills,
-          AVG(total_amount) as average_bill_amount
+          AVG(total) as average_bill_amount
          FROM bills
          WHERE created_at >= ? AND created_at <= ?`,
         [startDate, endDate]
@@ -114,13 +114,13 @@ class ReportingService {
       const result = await pool.query(
         `SELECT 
           DATE(created_at) as date,
-          settlement_mode,
-          COALESCE(SUM(total_amount), 0) as revenue,
+          payment_method,
+          COALESCE(SUM(total), 0) as revenue,
           COUNT(*) as transaction_count
          FROM bills
          WHERE created_at >= ? AND created_at <= ?
-         GROUP BY DATE(created_at), settlement_mode
-         ORDER BY date DESC, settlement_mode ASC`,
+         GROUP BY DATE(created_at), payment_method
+         ORDER BY date DESC, payment_method ASC`,
         [startDate, endDate]
       );
 
