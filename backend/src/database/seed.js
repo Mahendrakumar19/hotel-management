@@ -1,5 +1,10 @@
-const pool = require('./connection');
+const Database = require('better-sqlite3');
+const path = require('path');
 const bcrypt = require('bcryptjs');
+const { v4: uuidv4 } = require('uuid');
+
+const dbPath = path.join(__dirname, '../../hotel_management.db');
+const db = new Database(dbPath);
 
 async function seedDatabase() {
   try {
@@ -10,52 +15,66 @@ async function seedDatabase() {
     const frontDeskPassword = await bcrypt.hash('frontdesk@123', 10);
     const fbPassword = await bcrypt.hash('fb@123', 10);
 
-    await pool.query(`
-      INSERT INTO users (name, email, password_hash, role, status)
-      VALUES 
-        ('Admin User', 'admin@hotel.com', ?, 'admin', 'active'),
-        ('Front Desk - John', 'frontdesk1@hotel.com', ?, 'front_desk', 'active'),
-        ('F&B Manager - Sarah', 'fb@hotel.com', ?, 'f_and_b', 'active')
-      ON DUPLICATE KEY UPDATE email = email
-    `, [adminPassword, frontDeskPassword, fbPassword]);
+    const adminId = uuidv4();
+    const frontDeskId = uuidv4();
+    const fbId = uuidv4();
 
-    // Create rooms (20 rooms: 10 standard, 10 deluxe)
-    const standardRooms = [];
-    const deluxeRooms = [];
+    // Check if users already exist
+    const existingUsers = db.prepare('SELECT COUNT(*) as count FROM users').get();
+    
+    if (existingUsers.count === 0) {
+      const insertUser = db.prepare(`
+        INSERT INTO users (id, name, email, password_hash, role, status)
+        VALUES (?, ?, ?, ?, ?, ?)
+      `);
 
-    for (let i = 1; i <= 10; i++) {
-      standardRooms.push([
-        `STD-${String(i).padStart(3, '0')}`,
-        'standard',
-        'vacant',
-        2,
-        1500.00
-      ]);
+      insertUser.run(adminId, 'Admin User', 'admin@hotel.com', adminPassword, 'admin', 'active');
+      insertUser.run(frontDeskId, 'Front Desk - John', 'frontdesk1@hotel.com', frontDeskPassword, 'front_desk', 'active');
+      insertUser.run(fbId, 'F&B Manager - Sarah', 'fb@hotel.com', fbPassword, 'f_and_b', 'active');
+      console.log('✓ Created 3 default users');
+    } else {
+      console.log('✓ Users already exist, skipping user creation');
     }
 
-    for (let i = 1; i <= 10; i++) {
-      deluxeRooms.push([
-        `DLX-${String(i).padStart(3, '0')}`,
-        'deluxe',
-        'vacant',
-        3,
-        2500.00
-      ]);
+    // Check if rooms already exist
+    const existingRooms = db.prepare('SELECT COUNT(*) as count FROM rooms').get();
+    
+    if (existingRooms.count === 0) {
+      // Create rooms (20 rooms: 10 standard, 10 deluxe)
+      const insertRoom = db.prepare(`
+        INSERT INTO rooms (id, room_number, room_type, status, capacity, base_rate)
+        VALUES (?, ?, ?, ?, ?, ?)
+      `);
+
+      // 10 Standard rooms
+      for (let i = 1; i <= 10; i++) {
+        insertRoom.run(
+          uuidv4(),
+          `STD-${String(i).padStart(3, '0')}`,
+          'standard',
+          'vacant',
+          2,
+          1500.00
+        );
+      }
+
+      // 10 Deluxe rooms
+      for (let i = 1; i <= 10; i++) {
+        insertRoom.run(
+          uuidv4(),
+          `DLX-${String(i).padStart(3, '0')}`,
+          'deluxe',
+          'vacant',
+          3,
+          2500.00
+        );
+      }
+      console.log('✓ Created 20 rooms (10 standard, 10 deluxe)');
+    } else {
+      console.log('✓ Rooms already exist, skipping room creation');
     }
 
-    const allRooms = [...standardRooms, ...deluxeRooms];
-
-    for (const room of allRooms) {
-      await pool.query(
-        `INSERT INTO rooms (room_number, room_type, status, capacity, base_rate)
-         VALUES (?, ?, ?, ?, ?)
-         ON DUPLICATE KEY UPDATE room_number = room_number`,
-        room
-      );
-    }
-
-    console.log('✓ Database seeding completed successfully');
-    console.log('✓ Created 3 default users and 20 rooms');
+    console.log('\n✓ Database seeding completed successfully');
     console.log('\nDefault Login Credentials:');
     console.log('Admin: admin@hotel.com / admin@123');
     console.log('Front Desk: frontdesk1@hotel.com / frontdesk@123');
@@ -63,7 +82,7 @@ async function seedDatabase() {
     
     process.exit(0);
   } catch (error) {
-    console.error('✗ Seeding failed:', error);
+    console.error('✗ Seeding failed:', error.message);
     process.exit(1);
   }
 }
