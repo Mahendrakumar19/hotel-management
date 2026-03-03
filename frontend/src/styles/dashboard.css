@@ -14,46 +14,179 @@
   margin-bottom: 30px;
 }
 
-.dashboard-header h1 {
-  font-size: 28px;
+.header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
   margin-bottom: 20px;
+}
+
+.header-top h1 {
+  font-size: 28px;
+  margin: 0;
   color: #333;
+}
+
+.header-subtitle {
+  font-size: 14px;
+  color: #999;
+  margin: 5px 0 0 0;
+}
+
+.refresh-controls {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.btn-refresh {
+  padding: 8px 15px;
+  background-color: #667eea;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  transition: background-color 0.3s;
+}
+
+.btn-refresh:hover {
+  background-color: #5568d3;
+}
+
+.auto-refresh-toggle {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 13px;
+  color: #666;
+  cursor: pointer;
+}
+
+.auto-refresh-toggle input[type="checkbox"] {
+  cursor: pointer;
+  width: 16px;
+  height: 16px;
 }
 
 .quick-stats {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 20px;
 }
 
+/* Base Stat Card Styling */
 .stat-card {
   background: white;
   padding: 20px;
   border-radius: 10px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.1);
   border-left: 5px solid #667eea;
+  display: flex;
+  align-items: flex-start;
+  gap: 15px;
+  transition: all 0.3s ease;
+  cursor: default;
 }
 
-.stat-card.occupied {
-  border-left-color: #e74c3c;
+.stat-card:hover {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  transform: translateY(-2px);
 }
 
-.stat-card.revenue {
-  border-left-color: #27ae60;
+.stat-icon {
+  font-size: 32px;
+  min-width: 50px;
+  text-align: center;
+}
+
+.stat-content {
+  flex: 1;
 }
 
 .stat-card h3 {
-  font-size: 14px;
+  font-size: 13px;
   color: #999;
-  margin-bottom: 10px;
+  margin: 0 0 8px 0;
   text-transform: uppercase;
   letter-spacing: 1px;
+  font-weight: 600;
 }
 
 .stat-value {
-  font-size: 28px;
+  font-size: 26px;
   font-weight: 700;
   color: #333;
+  margin: 0 0 8px 0;
+}
+
+/* Occupancy Bar */
+.occupancy-bar {
+  width: 100%;
+  height: 8px;
+  background-color: #e0e0e0;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+
+.occupancy-fill {
+  height: 100%;
+  transition: width 0.3s ease;
+}
+
+/* Stat Action Buttons */
+.stat-action {
+  padding: 6px 12px;
+  background-color: #667eea;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  transition: background-color 0.3s;
+  display: inline-block;
+  width: 100%;
+  text-align: center;
+}
+
+.stat-action:hover {
+  background-color: #5568d3;
+}
+
+/* Card Type Variants */
+.occupied-card {
+  border-left-color: #e74c3c;
+}
+
+.occupancy-card {
+  border-left-color: #f39c12;
+}
+
+.revenue-card {
+  border-left-color: #27ae60;
+}
+
+.pending-card {
+  border-left-color: #9b59b6;
+}
+
+.checkin-card {
+  border-left-color: #3498db;
+}
+
+.available-card {
+  border-left-color: #1abc9c;
+}
+
+/* Loading Spinner */
+.loading-spinner {
+  padding: 40px;
+  text-align: center;
+  color: #999;
+  font-size: 16px;
 }
 
 .welcome-panel {
@@ -64,3 +197,26 @@
   color: #999;
   font-size: 18px;
 }
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .quick-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .stat-card {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .header-top {
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .refresh-controls {
+    align-self: flex-start;
+  }
+}
+
