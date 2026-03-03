@@ -14,6 +14,11 @@ class ReservationController {
         return res.status(400).json({ error: 'Room selection is required' });
       }
 
+      // Use authenticated user ID, or fall back to null if not available
+      const userId = req.user?.id || null;
+      
+      console.log('DEBUG: Controller - createdBy userId:', userId);
+
       const reservation = await reservationService.createReservation(
         guestId,
         roomId,
@@ -21,7 +26,7 @@ class ReservationController {
         checkOutDate,
         numberOfGuests || 1,
         advancePayment || 0,
-        req.user.id,
+        userId,
         notes
       );
 

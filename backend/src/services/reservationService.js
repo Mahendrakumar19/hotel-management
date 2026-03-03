@@ -7,10 +7,17 @@ class ReservationService {
     try {
       await conn.beginTransaction();
 
-      // Validate user exists
-      const userExists = await conn.query('SELECT id FROM users WHERE id = ?', [userId]);
-      if (!userExists[0] || userExists[0].length === 0) {
-        throw new Error('Invalid user ID - user does not exist');
+      // Validate user exists only if userId is provided
+      if (userId) {
+        console.log('DEBUG: Validating user with ID:', userId);
+        const userExists = await conn.query('SELECT id FROM users WHERE id = ?', [userId]);
+        console.log('DEBUG: User query result:', userExists);
+        
+        if (!userExists[0] || userExists[0].length === 0) {
+          throw new Error(`Invalid user ID - user does not exist (ID: ${userId})`);
+        }
+      } else {
+        console.log('DEBUG: No userId provided, using system/anonymous creator');
       }
 
       // Validate room exists and is available
