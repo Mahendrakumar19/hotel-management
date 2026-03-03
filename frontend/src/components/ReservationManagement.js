@@ -49,34 +49,13 @@ export default function ReservationManagement() {
       setLoadingRooms(true);
       setRoomsLoaded(false);
       
-      // Fetch all rooms
-      const allRooms = await roomService.getAllRooms();
-      
-      // Fetch existing reservations for the date range
-      const checkIn = new Date(formData.checkInDate);
-      const checkOut = new Date(formData.checkOutDate);
-      
-      // Get all reservations to check for conflicts
-      const allReservations = await reservationService.getUpcomingReservations(365);
-      
-      // Filter rooms that don't have reservations overlapping with selected dates
-      const available = allRooms.filter(room => {
-        const isReserved = allReservations.some(res => {
-          const resCheckIn = new Date(res.check_in_date);
-          const resCheckOut = new Date(res.check_out_date);
-          
-          // Check if dates overlap (only check non-cancelled reservations)
-          return (
-            res.room_id === room.id &&
-            res.status !== 'cancelled' &&
-            checkIn < resCheckOut &&
-            checkOut > resCheckIn
-          );
-        });
-        
-        // Room is available if: no existing reservations AND room is vacant (not occupied/dirty)
-        return !isReserved && room.status === 'vacant';
-      });
+      // Use the backend's dedicated available rooms endpoint
+      // This properly checks for status='vacant' AND no overlapping reservations
+      const available = await roomService.getAvailableRooms(
+        formData.checkInDate,
+        formData.checkOutDate,
+        formData.numberOfGuests
+      );
       
       setAvailableRooms(available);
       setRoomsLoaded(true);
