@@ -74,7 +74,8 @@ export default function ReservationManagement() {
           );
         });
         
-        return !isReserved && room.status === 'available';
+        // Room is available if: no existing reservations AND room is vacant (not occupied/dirty)
+        return !isReserved && room.status === 'vacant';
       });
       
       setAvailableRooms(available);
