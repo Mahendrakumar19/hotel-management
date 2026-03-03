@@ -193,7 +193,7 @@ export default function CheckInCheckOut() {
                 </div>
                 <div className="room-info-details">
                   <p><strong>Capacity:</strong> {selectedRoom.capacity} guests</p>
-                  <p><strong>Base Rate:</strong> ${selectedRoom.base_rate}/night</p>
+                  <p><strong>Base Rate:</strong> ₹{selectedRoom.base_rate}/night</p>
                   <p><strong>Status:</strong> <span className="status-badge">{selectedRoom.status}</span></p>
                 </div>
               </div>

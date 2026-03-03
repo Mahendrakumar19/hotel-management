@@ -282,7 +282,7 @@ export default function ReservationManagement() {
                         </div>
                         <div className="room-details">
                           <p><strong>Capacity:</strong> {room.capacity} guests</p>
-                          <p><strong>Rate:</strong> ${room.base_rate}/night</p>
+                          <p><strong>Rate:</strong> ₹{room.base_rate}/night</p>
                           <p><strong>Status:</strong> <span className="available">Available</span></p>
                         </div>
                         <div className="room-selection-indicator">

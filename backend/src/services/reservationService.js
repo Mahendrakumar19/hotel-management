@@ -8,13 +8,15 @@ class ReservationService {
       await conn.beginTransaction();
 
       // Validate user exists only if userId is provided
+      let validatedUserId = userId;
       if (userId) {
         console.log('DEBUG: Validating user with ID:', userId);
         const userExists = await conn.query('SELECT id FROM users WHERE id = ?', [userId]);
         console.log('DEBUG: User query result:', userExists);
         
         if (!userExists[0] || userExists[0].length === 0) {
-          throw new Error(`Invalid user ID - user does not exist (ID: ${userId})`);
+          console.warn(`User not found in database (ID: ${userId}), setting created_by to NULL`);
+          validatedUserId = null; // Allow reservation without valid user reference
         }
       } else {
         console.log('DEBUG: No userId provided, using system/anonymous creator');
@@ -36,7 +38,7 @@ class ReservationService {
         `INSERT INTO reservations 
          (id, guest_id, room_id, check_in_date, check_out_date, number_of_guests, advance_payment, reservation_number, status, created_by, notes)
          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [reservationId, guestId, roomId, checkInDate, checkOutDate, numberOfGuests, advancePayment, reservationNumber, 'confirmed', userId, notes]
+        [reservationId, guestId, roomId, checkInDate, checkOutDate, numberOfGuests, advancePayment, reservationNumber, 'confirmed', validatedUserId, notes]
       );
 
       await conn.commit();
