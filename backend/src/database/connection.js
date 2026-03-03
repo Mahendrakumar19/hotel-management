@@ -12,9 +12,21 @@ db.pragma('foreign_keys = ON');
 // Create a promise wrapper for compatibility with existing code
 class PoolWrapper {
   getConnection() {
+    const connectionState = {
+      inTransaction: false
+    };
+
     return Promise.resolve({
-      beginTransaction: () => {
-        db.exec('BEGIN TRANSACTION');
+      beginTransaction: async () => {
+        if (!connectionState.inTransaction) {
+          try {
+            db.exec('BEGIN TRANSACTION');
+            connectionState.inTransaction = true;
+          } catch (error) {
+            console.error('Error beginning transaction:', error);
+            throw error;
+          }
+        }
         return Promise.resolve();
       },
       query: (sql, params) => {
@@ -28,15 +40,31 @@ class PoolWrapper {
             return Promise.resolve([{ changes: result.changes }, []]);
           }
         } catch (error) {
+          console.error('Query error:', { sql, error: error.message });
           return Promise.reject(error);
         }
       },
-      commit: () => {
-        db.exec('COMMIT');
+      commit: async () => {
+        if (connectionState.inTransaction) {
+          try {
+            db.exec('COMMIT');
+            connectionState.inTransaction = false;
+          } catch (error) {
+            console.error('Error committing transaction:', error);
+            throw error;
+          }
+        }
         return Promise.resolve();
       },
-      rollback: () => {
-        db.exec('ROLLBACK');
+      rollback: async () => {
+        if (connectionState.inTransaction) {
+          try {
+            db.exec('ROLLBACK');
+            connectionState.inTransaction = false;
+          } catch (error) {
+            console.error('Error rolling back transaction:', error);
+          }
+        }
         return Promise.resolve();
       },
       release: () => {
@@ -56,6 +84,7 @@ class PoolWrapper {
         return Promise.resolve([{ changes: result.changes }, []]);
       }
     } catch (error) {
+      console.error('Query error:', { sql, error: error.message });
       return Promise.reject(error);
     }
   }
