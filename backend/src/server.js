@@ -10,6 +10,8 @@ const guestRoutes = require('./routes/guestRoutes');
 const checkInRoutes = require('./routes/checkInRoutes');
 const billingRoutes = require('./routes/billingRoutes');
 const reportingRoutes = require('./routes/reportingRoutes');
+const storeRequisitionRoutes = require('./routes/storeRequisitionRoutes');
+const purchaseGrnRoutes = require('./routes/purchaseGrnRoutes');
 
 const app = express();
 
@@ -37,6 +39,8 @@ app.use('/api/guests', guestRoutes);
 app.use('/api/check-ins', checkInRoutes);
 app.use('/api/bills', billingRoutes);
 app.use('/api/reports', reportingRoutes);
+app.use('/api/store-requisitions', storeRequisitionRoutes);
+app.use('/api/purchase-grn', purchaseGrnRoutes);
 
 // 404 handler
 app.use((req, res) => {
@@ -63,7 +67,11 @@ const server = app.listen(PORT, () => {
   console.log('  GET    /api/guests');
   console.log('  POST   /api/check-ins');
   console.log('  POST   /api/bills');
-  console.log('  GET    /api/reports/daily\n');
+  console.log('  GET    /api/reports/daily');
+  console.log('  POST   /api/store-requisitions');
+  console.log('  GET    /api/store-requisitions');
+  console.log('  POST   /api/purchase-grn');
+  console.log('  GET    /api/purchase-grn\n');
 });
 
 server.on('error', (err) => {

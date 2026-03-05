@@ -158,6 +158,47 @@ const schema = [
     FOREIGN KEY (created_by) REFERENCES users(id)
   )`,
 
+  // Store Requisitions Table
+  `CREATE TABLE IF NOT EXISTS store_requisitions (
+    id TEXT PRIMARY KEY,
+    requisition_number TEXT UNIQUE NOT NULL,
+    item_name TEXT NOT NULL,
+    quantity DECIMAL(10,2) NOT NULL,
+    unit TEXT NOT NULL CHECK (unit IN ('PCS', 'BAG', 'BOX', 'LITER', 'KG')),
+    priority TEXT NOT NULL CHECK (priority IN ('routine', 'urgent')) DEFAULT 'routine',
+    description TEXT,
+    status TEXT NOT NULL CHECK (status IN ('pending', 'approved', 'rejected')) DEFAULT 'pending',
+    requested_by TEXT NOT NULL,
+    approved_by TEXT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    approved_at DATETIME,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (requested_by) REFERENCES users(id),
+    FOREIGN KEY (approved_by) REFERENCES users(id)
+  )`,
+
+  // Purchase GRN Table (Goods Receipt Note)
+  `CREATE TABLE IF NOT EXISTS purchase_grn (
+    id TEXT PRIMARY KEY,
+    grn_number TEXT UNIQUE NOT NULL,
+    invoice_number TEXT NOT NULL,
+    vendor_name TEXT NOT NULL,
+    item_name TEXT NOT NULL,
+    quantity DECIMAL(10,2) NOT NULL,
+    received_quantity DECIMAL(10,2) NOT NULL,
+    unit TEXT NOT NULL CHECK (unit IN ('PCS', 'BAG', 'BOX', 'LITER', 'KG')),
+    quality TEXT NOT NULL CHECK (quality IN ('good', 'partial', 'damaged')) DEFAULT 'good',
+    status TEXT NOT NULL CHECK (status IN ('pending_approval', 'approved', 'received', 'rejected')) DEFAULT 'pending_approval',
+    received_by TEXT NOT NULL,
+    approved_by TEXT,
+    remarks TEXT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    approved_at DATETIME,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (received_by) REFERENCES users(id),
+    FOREIGN KEY (approved_by) REFERENCES users(id)
+  )`,
+
   // Audit Logs Table
   `CREATE TABLE IF NOT EXISTS audit_logs (
     id TEXT PRIMARY KEY,
@@ -187,7 +228,12 @@ const indexes = [
   'CREATE INDEX IF NOT EXISTS idx_guests_phone ON guests(phone)',
   'CREATE INDEX IF NOT EXISTS idx_rooms_status ON rooms(status)',
   'CREATE INDEX IF NOT EXISTS idx_reservations_status ON reservations(status)',
-  'CREATE INDEX IF NOT EXISTS idx_bills_status ON bills(status)'
+  'CREATE INDEX IF NOT EXISTS idx_bills_status ON bills(status)',
+  'CREATE INDEX IF NOT EXISTS idx_store_requisitions_status ON store_requisitions(status)',
+  'CREATE INDEX IF NOT EXISTS idx_store_requisitions_requested_by ON store_requisitions(requested_by)',
+  'CREATE INDEX IF NOT EXISTS idx_purchase_grn_status ON purchase_grn(status)',
+  'CREATE INDEX IF NOT EXISTS idx_purchase_grn_received_by ON purchase_grn(received_by)',
+  'CREATE INDEX IF NOT EXISTS idx_purchase_grn_vendor ON purchase_grn(vendor_name)'
 ];
 
 async function runMigration() {

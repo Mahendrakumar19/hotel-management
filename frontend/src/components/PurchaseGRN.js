@@ -1,106 +1,114 @@
 import React, { useState, useEffect } from 'react';
+import { purchaseGrnService } from '../services/api';
 import '../styles/components.css';
 
 export default function PurchaseGRN() {
   const [grns, setGRNs] = useState([]);
   const [showForm, setShowForm] = useState(false);
-  const [selectedGRN, setSelectedGRN] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [stats, setStats] = useState({ total: 0, pending: 0, approved: 0, received: 0, rejected: 0 });
   const [formData, setFormData] = useState({
-    grnNumber: '',
-    itemName: '',
+    invoice_number: '',
+    vendor_name: '',
+    item_name: '',
     quantity: 1,
+    received_quantity: 1,
     unit: 'PCS',
-    invoiceNumber: '',
-    vendorName: '',
-    receivedQuantity: 1,
     quality: 'good',
-    notes: ''
+    remarks: ''
   });
-
-  const mockGRNs = [
-    {
-      id: 1,
-      grnNumber: 'GRN-2026-001',
-      invoiceNumber: 'INV-1001',
-      vendorName: 'ABC Food Supplies',
-      itemName: 'Rice (20kg)',
-      quantity: 5,
-      receivedQuantity: 5,
-      unit: 'BAG',
-      quality: 'good',
-      status: 'received',
-      receivedAt: '2026-03-04',
-      approvedAt: '2026-03-04'
-    },
-    {
-      id: 2,
-      grnNumber: 'GRN-2026-002',
-      invoiceNumber: 'INV-1002',
-      vendorName: 'XYZ Vendors',
-      itemName: 'Dal (10kg)',
-      quantity: 3,
-      receivedQuantity: 3,
-      unit: 'BAG',
-      quality: 'good',
-      status: 'pending_approval',
-      receivedAt: '2026-03-05',
-      approvedAt: null
-    }
-  ];
 
   useEffect(() => {
     loadGRNs();
+    loadStatistics();
   }, []);
 
-  const loadGRNs = () => {
-    setGRNs(mockGRNs);
+  const loadGRNs = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await purchaseGrnService.getAllGrns();
+      setGRNs(response.data || []);
+    } catch (err) {
+      setError('Failed to load GRNs');
+      console.error(err);
+      setGRNs([]);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleSubmit = (e) => {
+  const loadStatistics = async () => {
+    try {
+      const response = await purchaseGrnService.getStatistics();
+      setStats(response.data || { total: 0, pending: 0, approved: 0, received: 0, rejected: 0 });
+    } catch (err) {
+      console.error('Failed to load statistics:', err);
+    }
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (!formData.itemName || !formData.quantity || !formData.vendorName) {
+    if (!formData.invoice_number || !formData.vendor_name || !formData.item_name || !formData.quantity) {
       alert('Please fill all required fields');
       return;
     }
 
-    const newGRN = {
-      id: mockGRNs.length + 1,
-      grnNumber: `GRN-2026-${String(mockGRNs.length + 1).padStart(3, '0')}`,
-      ...formData,
-      status: 'pending_approval',
-      receivedAt: new Date().toISOString().split('T')[0],
-      approvedAt: null
-    };
-
-    setGRNs([...grns, newGRN]);
-    setFormData({
-      grnNumber: '',
-      itemName: '',
-      quantity: 1,
-      unit: 'PCS',
-      invoiceNumber: '',
-      vendorName: '',
-      receivedQuantity: 1,
-      quality: 'good',
-      notes: ''
-    });
-    setShowForm(false);
-    alert('GRN created successfully');
+    try {
+      setLoading(true);
+      await purchaseGrnService.createGrn(formData);
+      setFormData({
+        invoice_number: '',
+        vendor_name: '',
+        item_name: '',
+        quantity: 1,
+        received_quantity: 1,
+        unit: 'PCS',
+        quality: 'good',
+        remarks: ''
+      });
+      setShowForm(false);
+      await loadGRNs();
+      await loadStatistics();
+      alert('GRN created successfully');
+    } catch (err) {
+      alert('Failed to create GRN: ' + err.message);
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleApprove = (id) => {
-    setGRNs(grns.map(g => 
-      g.id === id ? { ...g, status: 'approved', approvedAt: new Date().toISOString().split('T')[0] } : g
-    ));
-    alert('GRN approved');
+  const handleApprove = async (id) => {
+    try {
+      setLoading(true);
+      await purchaseGrnService.approveGrn(id);
+      await loadGRNs();
+      await loadStatistics();
+      alert('GRN approved');
+    } catch (err) {
+      alert('Failed to approve GRN: ' + err.message);
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleReject = (id) => {
-    setGRNs(grns.map(g => 
-      g.id === id ? { ...g, status: 'rejected' } : g
-    ));
-    alert('GRN rejected');
+  const handleReject = async (id) => {
+    try {
+      setLoading(true);
+      await purchaseGrnService.rejectGrn(id);
+      await loadGRNs();
+      await loadStatistics();
+      alert('GRN rejected');
+    } catch (err) {
+      alert('Failed to reject GRN: ' + err.message);
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const getStatusIcon = (status) => {
@@ -129,10 +137,13 @@ export default function PurchaseGRN() {
         <button 
           className="btn-primary"
           onClick={() => setShowForm(!showForm)}
+          disabled={loading}
         >
           {showForm ? '✕ Cancel' : '➕ New GRN'}
         </button>
       </div>
+
+      {error && <div className="error-alert">{error}</div>}
 
       {/* Stats */}
       <div className="room-stats">
@@ -140,28 +151,28 @@ export default function PurchaseGRN() {
           <span className="stat-icon">📊</span>
           <div className="stat-content">
             <p className="stat-label">Total GRNs</p>
-            <p className="stat-count">{grns.length}</p>
+            <p className="stat-count">{stats.total || 0}</p>
           </div>
         </div>
         <div className="stat-item">
           <span className="stat-icon">⏳</span>
           <div className="stat-content">
             <p className="stat-label">Pending</p>
-            <p className="stat-count">{grns.filter(g => g.status === 'pending_approval').length}</p>
+            <p className="stat-count">{stats.pending || 0}</p>
           </div>
         </div>
         <div className="stat-item">
           <span className="stat-icon">✅</span>
           <div className="stat-content">
             <p className="stat-label">Approved</p>
-            <p className="stat-count">{grns.filter(g => g.status === 'approved').length}</p>
+            <p className="stat-count">{stats.approved || 0}</p>
           </div>
         </div>
         <div className="stat-item">
           <span className="stat-icon">📦</span>
           <div className="stat-content">
             <p className="stat-label">Received</p>
-            <p className="stat-count">{grns.filter(g => g.status === 'received').length}</p>
+            <p className="stat-count">{stats.received || 0}</p>
           </div>
         </div>
       </div>
@@ -177,10 +188,11 @@ export default function PurchaseGRN() {
                 <input
                   type="text"
                   required
-                  value={formData.invoiceNumber}
-                  onChange={(e) => setFormData({...formData, invoiceNumber: e.target.value})}
+                  value={formData.invoice_number}
+                  onChange={(e) => setFormData({...formData, invoice_number: e.target.value})}
                   placeholder="e.g., INV-1001"
                   className="input-field"
+                  disabled={loading}
                 />
               </div>
 
@@ -189,10 +201,11 @@ export default function PurchaseGRN() {
                 <input
                   type="text"
                   required
-                  value={formData.vendorName}
-                  onChange={(e) => setFormData({...formData, vendorName: e.target.value})}
+                  value={formData.vendor_name}
+                  onChange={(e) => setFormData({...formData, vendor_name: e.target.value})}
                   placeholder="Vendor/Supplier Name"
                   className="input-field"
+                  disabled={loading}
                 />
               </div>
             </div>
@@ -202,10 +215,11 @@ export default function PurchaseGRN() {
               <input
                 type="text"
                 required
-                value={formData.itemName}
-                onChange={(e) => setFormData({...formData, itemName: e.target.value})}
+                value={formData.item_name}
+                onChange={(e) => setFormData({...formData, item_name: e.target.value})}
                 placeholder="Item to be received"
                 className="input-field"
+                disabled={loading}
               />
             </div>
 
@@ -216,9 +230,11 @@ export default function PurchaseGRN() {
                   type="number"
                   required
                   min="1"
+                  step="0.01"
                   value={formData.quantity}
-                  onChange={(e) => setFormData({...formData, quantity: parseInt(e.target.value)})}
+                  onChange={(e) => setFormData({...formData, quantity: parseFloat(e.target.value)})}
                   className="input-field"
+                  disabled={loading}
                 />
               </div>
 
@@ -228,9 +244,11 @@ export default function PurchaseGRN() {
                   type="number"
                   required
                   min="1"
-                  value={formData.receivedQuantity}
-                  onChange={(e) => setFormData({...formData, receivedQuantity: parseInt(e.target.value)})}
+                  step="0.01"
+                  value={formData.received_quantity}
+                  onChange={(e) => setFormData({...formData, received_quantity: parseFloat(e.target.value)})}
                   className="input-field"
+                  disabled={loading}
                 />
               </div>
 
@@ -240,6 +258,7 @@ export default function PurchaseGRN() {
                   value={formData.unit}
                   onChange={(e) => setFormData({...formData, unit: e.target.value})}
                   className="input-field"
+                  disabled={loading}
                 >
                   <option value="PCS">Pieces</option>
                   <option value="BAG">Bag</option>
@@ -256,6 +275,7 @@ export default function PurchaseGRN() {
                 value={formData.quality}
                 onChange={(e) => setFormData({...formData, quality: e.target.value})}
                 className="input-field"
+                disabled={loading}
               >
                 <option value="good">Good Condition</option>
                 <option value="partial">Partial Damage</option>
@@ -264,19 +284,24 @@ export default function PurchaseGRN() {
             </div>
 
             <div className="form-group">
-              <label>Notes</label>
+              <label>Remarks</label>
               <textarea
-                value={formData.notes}
-                onChange={(e) => setFormData({...formData, notes: e.target.value})}
+                value={formData.remarks}
+                onChange={(e) => setFormData({...formData, remarks: e.target.value})}
                 placeholder="Additional notes"
                 className="input-field"
                 rows="2"
+                disabled={loading}
               />
             </div>
 
             <div className="form-actions">
-              <button type="submit" className="btn-primary">✓ Create GRN</button>
-              <button type="button" className="btn-secondary" onClick={() => setShowForm(false)}>Cancel</button>
+              <button type="submit" className="btn-primary" disabled={loading}>
+                {loading ? '⏳ Creating...' : '✓ Create GRN'}
+              </button>
+              <button type="button" className="btn-secondary" onClick={() => setShowForm(false)} disabled={loading}>
+                Cancel
+              </button>
             </div>
           </form>
         </div>
@@ -285,7 +310,9 @@ export default function PurchaseGRN() {
       {/* GRNs List */}
       <div className="grns-table-section">
         <h3>GRN List</h3>
-        {grns.length === 0 ? (
+        {loading && grns.length === 0 ? (
+          <p className="loading-state">Loading...</p>
+        ) : grns.length === 0 ? (
           <p className="empty-state">No GRNs created</p>
         ) : (
           <table className="data-table">
@@ -306,12 +333,12 @@ export default function PurchaseGRN() {
             <tbody>
               {grns.map(grn => (
                 <tr key={grn.id} className={`status-${grn.status}`}>
-                  <td className="font-bold">{grn.grnNumber}</td>
-                  <td>{grn.invoiceNumber}</td>
-                  <td>{grn.vendorName}</td>
-                  <td>{grn.itemName}</td>
+                  <td className="font-bold">{grn.grn_number}</td>
+                  <td>{grn.invoice_number}</td>
+                  <td>{grn.vendor_name}</td>
+                  <td>{grn.item_name}</td>
                   <td>{grn.quantity} {grn.unit}</td>
-                  <td>{grn.receivedQuantity} {grn.unit}</td>
+                  <td>{grn.received_quantity} {grn.unit}</td>
                   <td>
                     <span 
                       className="quality-badge"
@@ -325,7 +352,7 @@ export default function PurchaseGRN() {
                       {getStatusIcon(grn.status)} {grn.status.replace('_', ' ').toUpperCase()}
                     </span>
                   </td>
-                  <td>{grn.receivedAt}</td>
+                  <td>{grn.created_at?.split('T')[0]}</td>
                   <td>
                     {grn.status === 'pending_approval' && (
                       <>
@@ -333,6 +360,7 @@ export default function PurchaseGRN() {
                           className="btn-sm btn-success"
                           onClick={() => handleApprove(grn.id)}
                           title="Approve"
+                          disabled={loading}
                         >
                           ✓
                         </button>
@@ -340,6 +368,7 @@ export default function PurchaseGRN() {
                           className="btn-sm btn-danger"
                           onClick={() => handleReject(grn.id)}
                           title="Reject"
+                          disabled={loading}
                         >
                           ✕
                         </button>

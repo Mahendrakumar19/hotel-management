@@ -276,4 +276,135 @@ export const reportingService = {
   }
 };
 
+// Store Requisition Service
+export const storeRequisitionService = {
+  createRequisition: async (data) => {
+    const response = await api.post('/store-requisitions', data);
+    return response.data;
+  },
+
+  getRequisitionById: async (id) => {
+    const response = await api.get(`/store-requisitions/${id}`);
+    return response.data;
+  },
+
+  getAllRequisitions: async (filters = {}) => {
+    const response = await api.get('/store-requisitions', { params: filters });
+    return response.data;
+  },
+
+  getRequisitionsByStatus: async (status) => {
+    const response = await api.get('/store-requisitions', { params: { status } });
+    return response.data;
+  },
+
+  updateRequisition: async (id, data) => {
+    const response = await api.put(`/store-requisitions/${id}`, data);
+    return response.data;
+  },
+
+  approveRequisition: async (id) => {
+    const response = await api.post(`/store-requisitions/${id}/approve`);
+    return response.data;
+  },
+
+  rejectRequisition: async (id) => {
+    const response = await api.post(`/store-requisitions/${id}/reject`);
+    return response.data;
+  },
+
+  deleteRequisition: async (id) => {
+    const response = await api.delete(`/store-requisitions/${id}`);
+    return response.data;
+  },
+
+  getStatistics: async () => {
+    const response = await api.get('/store-requisitions/statistics');
+    return response.data;
+  },
+
+  getPendingCount: async () => {
+    const response = await api.get('/store-requisitions/pending-count');
+    return response.data;
+  }
+};
+
+// Purchase GRN Service
+export const purchaseGrnService = {
+  createGrn: async (data) => {
+    const response = await api.post('/purchase-grn', data);
+    return response.data;
+  },
+
+  getGrnById: async (id) => {
+    const response = await api.get(`/purchase-grn/${id}`);
+    return response.data;
+  },
+
+  getAllGrns: async (filters = {}) => {
+    const response = await api.get('/purchase-grn', { params: filters });
+    return response.data;
+  },
+
+  getGrnsByStatus: async (status) => {
+    const response = await api.get('/purchase-grn', { params: { status } });
+    return response.data;
+  },
+
+  getGrnByInvoice: async (invoiceNumber) => {
+    const response = await api.get(`/purchase-grn/invoice/${invoiceNumber}`);
+    return response.data;
+  },
+
+  getGrnsByVendor: async (vendorName) => {
+    const response = await api.get(`/purchase-grn/vendor/${vendorName}`);
+    return response.data;
+  },
+
+  updateGrn: async (id, data) => {
+    const response = await api.put(`/purchase-grn/${id}`, data);
+    return response.data;
+  },
+
+  approveGrn: async (id) => {
+    const response = await api.post(`/purchase-grn/${id}/approve`);
+    return response.data;
+  },
+
+  rejectGrn: async (id) => {
+    const response = await api.post(`/purchase-grn/${id}/reject`);
+    return response.data;
+  },
+
+  markAsReceived: async (id) => {
+    const response = await api.post(`/purchase-grn/${id}/mark-received`);
+    return response.data;
+  },
+
+  getVariance: async (id) => {
+    const response = await api.get(`/purchase-grn/${id}/variance`);
+    return response.data;
+  },
+
+  deleteGrn: async (id) => {
+    const response = await api.delete(`/purchase-grn/${id}`);
+    return response.data;
+  },
+
+  getStatistics: async () => {
+    const response = await api.get('/purchase-grn/statistics');
+    return response.data;
+  },
+
+  getPendingCount: async () => {
+    const response = await api.get('/purchase-grn/pending-count');
+    return response.data;
+  },
+
+  getVendorsList: async () => {
+    const response = await api.get('/purchase-grn/vendors');
+    return response.data;
+  }
+};
+
 export default api;
