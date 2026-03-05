@@ -1,6 +1,6 @@
 # Multi-Stage Dockerfile for Hotel Management System
 # Stage 1: Build Frontend
-FROM node:18-alpine as frontend-builder
+FROM node:20-alpine as frontend-builder
 
 WORKDIR /app/frontend
 
@@ -13,7 +13,7 @@ COPY frontend/ .
 RUN npm run build
 
 # Stage 2: Build Backend
-FROM node:18-alpine as backend-builder
+FROM node:20-alpine as backend-builder
 
 WORKDIR /app/backend
 
@@ -24,7 +24,7 @@ RUN npm ci --only=production
 COPY backend/ .
 
 # Stage 3: Final Production Image
-FROM node:18-alpine
+FROM node:20-alpine
 
 WORKDIR /app
 
