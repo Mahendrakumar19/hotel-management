@@ -209,16 +209,22 @@ export default function BillingCenter() {
             <div className="payment-method-section">
               <h4>Payment Method</h4>
               <div className="payment-methods">
-                {['cash', 'card', 'upi', 'check'].map(method => (
-                  <label key={method} className="payment-option">
+                {[
+                  { value: 'cash', label: '💵 Cash' },
+                  { value: 'credit_card', label: '💳 Credit Card' },
+                  { value: 'debit_card', label: '🏦 Debit Card' },
+                  { value: 'upi', label: '📱 UPI' },
+                  { value: 'bill_to_company', label: '🏢 Bill to Company' }
+                ].map(method => (
+                  <label key={method.value} className="payment-option">
                     <input 
                       type="radio" 
                       name="paymentMethod" 
-                      value={method}
-                      checked={paymentMethod === method}
+                      value={method.value}
+                      checked={paymentMethod === method.value}
                       onChange={(e) => setPaymentMethod(e.target.value)}
                     />
-                    <span>{method.toUpperCase()}</span>
+                    <span>{method.label}</span>
                   </label>
                 ))}
               </div>

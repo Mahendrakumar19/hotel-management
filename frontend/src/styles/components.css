@@ -2108,3 +2108,239 @@
     }
   }
 }
+
+/* Store Requisition Styles */
+.store-requisition .form-card {
+  background: #f8f9fa;
+  border: 2px solid #e0e0e0;
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.store-requisition .form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+  margin-top: 15px;
+}
+
+.store-requisition .form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.store-requisition .form-group label {
+  font-weight: 600;
+  margin-bottom: 5px;
+  color: #333;
+  font-size: 13px;
+}
+
+.store-requisition .form-group input,
+.store-requisition .form-group select,
+.store-requisition .form-group textarea {
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 14px;
+  font-family: inherit;
+}
+
+.store-requisition .form-group textarea {
+  resize: vertical;
+}
+
+.store-requisition .form-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 10px;
+  justify-content: flex-start;
+}
+
+.store-requisition .form-actions button {
+  padding: 10px 20px;
+  border-radius: 5px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.store-requisition .btn-primary {
+  background: #667eea;
+  color: white;
+}
+
+.store-requisition .btn-primary:hover {
+  background: #5568d3;
+  transform: translateY(-2px);
+}
+
+.store-requisition .btn-secondary {
+  background: #e0e0e0;
+  color: #333;
+}
+
+.store-requisition .btn-secondary:hover {
+  background: #d0d0d0;
+}
+
+.requisitions-table-section {
+  margin-top: 30px;
+}
+
+.requisitions-table-section h3 {
+  margin-bottom: 15px;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.data-table thead {
+  background: #f8f9fa;
+  border-bottom: 2px solid #e0e0e0;
+}
+
+.data-table th {
+  padding: 12px;
+  text-align: left;
+  font-weight: 600;
+  color: #333;
+  font-size: 13px;
+}
+
+.data-table td {
+  padding: 12px;
+  border-bottom: 1px solid #e0e0e0;
+  font-size: 13px;
+}
+
+.data-table tbody tr:hover {
+  background-color: #f8f9fa;
+}
+
+.data-table tr.status-approved {
+  background-color: #f0fff4;
+}
+
+.data-table tr.status-pending {
+  background-color: #fffbf0;
+}
+
+.data-table tr.status-rejected {
+  background-color: #fff5f5;
+}
+
+.priority-badge,
+.quality-badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 20px;
+  color: white;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border-radius: 5px;
+  font-size: 12px;
+  font-weight: 600;
+  background: #e0e0e0;
+  color: #333;
+}
+
+.btn-sm {
+  padding: 6px 10px;
+  border: none;
+  border-radius: 5px;
+  font-size: 12px;
+  cursor: pointer;
+  margin: 0 2px;
+  transition: all 0.3s ease;
+}
+
+.btn-sm.btn-success {
+  background: #27ae60;
+  color: white;
+}
+
+.btn-sm.btn-success:hover {
+  background: #229954;
+}
+
+.btn-sm.btn-danger {
+  background: #e74c3c;
+  color: white;
+}
+
+.btn-sm.btn-danger:hover {
+  background: #c0392b;
+}
+
+.font-bold {
+  font-weight: 600;
+  color: #667eea;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 30px;
+  color: #999;
+  font-size: 14px;
+}
+
+/* Purchase GRN Styles */
+.purchase-grn .form-card {
+  background: #f8f9fa;
+  border: 2px solid #e0e0e0;
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+}
+
+.form-row > .form-group {
+  margin: 0;
+}
+
+.grns-table-section {
+  margin-top: 30px;
+}
+
+@media (max-width: 768px) {
+  .store-requisition .form-grid,
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .data-table {
+    font-size: 12px;
+  }
+
+  .data-table th,
+  .data-table td {
+    padding: 8px;
+  }
+
+  .btn-sm {
+    padding: 4px 6px;
+    font-size: 11px;
+  }
+}

@@ -60,5 +60,5 @@ EXPOSE 5000 3000
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
     CMD wget --quiet --tries=1 --spider http://localhost:5000/health || exit 1
 
-# Start application with entrypoint
-ENTRYPOINT ["/bin/bash", "-c", "source /app/entrypoint.sh"]
+# Start application with entrypoint (use POSIX shell on Alpine)
+ENTRYPOINT ["/bin/sh", "-c", ". /app/entrypoint.sh"]

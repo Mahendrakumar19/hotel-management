@@ -16,7 +16,9 @@ export default function Navigation({ user, onLogout }) {
     { path: '/dashboard/reservations', label: 'Reservations', icon: '📋', roles: ['admin', 'frontdesk', 'f_and_b'] },
     { path: '/dashboard/check-in', label: 'Check-In/Out', icon: '🔑', roles: ['admin', 'frontdesk'] },
     { path: '/dashboard/billing', label: 'Billing', icon: '💳', roles: ['admin', 'f_and_b'] },
-    { path: '/dashboard/reports', label: 'Reports', icon: '📈', roles: ['admin'] }
+    { path: '/dashboard/reports', label: 'Reports', icon: '📈', roles: ['admin'] },
+    { path: '/dashboard/store-requisition', label: 'Store Requisition', icon: '📦', roles: ['admin', 'f_and_b'] },
+    { path: '/dashboard/purchase-grn', label: 'Purchase GRN', icon: '📋', roles: ['admin'] }
   ];
 
   const visibleItems = navItems.filter(item => {

@@ -7,6 +7,8 @@ import ReservationManagement from '../components/ReservationManagement';
 import CheckInCheckOut from '../components/CheckInCheckOut';
 import BillingCenter from '../components/BillingCenter';
 import Reports from '../components/Reports';
+import StoreRequisition from '../components/StoreRequisition';
+import PurchaseGRN from '../components/PurchaseGRN';
 import '../styles/dashboard.css';
 
 export default function Dashboard() {
@@ -228,6 +230,8 @@ export default function Dashboard() {
           <Route path="/check-in" element={<CheckInCheckOut />} />
           <Route path="/billing" element={<BillingCenter />} />
           <Route path="/reports" element={<Reports />} />
+          <Route path="/store-requisition" element={<StoreRequisition />} />
+          <Route path="/purchase-grn" element={<PurchaseGRN />} />
           <Route path="/" element={<div className="welcome-panel">📊 Dashboard loaded. Select an option from the menu to continue.</div>} />
         </Routes>
       </div>
