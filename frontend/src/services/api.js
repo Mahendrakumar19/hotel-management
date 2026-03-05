@@ -59,6 +59,11 @@ export const authService = {
     const user = localStorage.getItem('user');
     return user ? JSON.parse(user) : null;
   }
+  ,
+  getProfile: async () => {
+    const response = await api.get('/auth/profile');
+    return response.data;
+  }
 };
 
 // Room Service

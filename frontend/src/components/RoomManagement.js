@@ -51,6 +51,8 @@ export default function RoomManagement() {
     }
   };
 
+  
+
   const getStatusIcon = (status) => {
     switch (status) {
       case 'occupied': return '👥';
@@ -80,14 +82,17 @@ export default function RoomManagement() {
     <div className="module-container room-management">
       <div className="room-management-header">
         <h2>🛏️ Room Management</h2>
-        <button 
-          className="btn-primary"
-          onClick={loadRooms}
-          title="Refresh room list"
-        >
-          🔄 Refresh
-        </button>
+        <div className="header-actions">
+          <button 
+            className="btn-primary"
+            onClick={loadRooms}
+            title="Refresh room list"
+          >
+            🔄 Refresh
+          </button>
+        </div>
       </div>
+      
 
       {/* Room Statistics */}
       <div className="room-stats">
@@ -205,6 +210,7 @@ export default function RoomManagement() {
           </div>
         </div>
       )}
+      
     </div>
   );
 }

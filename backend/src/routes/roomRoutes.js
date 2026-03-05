@@ -16,6 +16,9 @@ router.get('/statistics', roomController.getRoomStatistics);
 // Get available rooms for specific dates
 router.get('/available', roomController.getAvailableRooms);
 
+// Create new room (admin only)
+router.post('/', roleMiddleware('admin'), roomController.createRoom);
+
 // Get single room
 router.get('/:id', roomController.getRoomById);
 

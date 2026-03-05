@@ -46,9 +46,9 @@ app.use((req, res) => {
 // Error handling middleware
 app.use(errorHandler);
 
-// Start server
+// Start server with error handling for EADDRINUSE
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`\n╔════════════════════════════════════════╗`);
   console.log(`║  Hotel Management System API          ║`);
   console.log(`║  Server running on port ${PORT}           ║`);
@@ -64,6 +64,15 @@ app.listen(PORT, () => {
   console.log('  POST   /api/check-ins');
   console.log('  POST   /api/bills');
   console.log('  GET    /api/reports/daily\n');
+});
+
+server.on('error', (err) => {
+  if (err && err.code === 'EADDRINUSE') {
+    console.error(`Port ${PORT} is already in use. Another server may be running.`);
+    console.error('Resolve by stopping the process holding the port, or set PORT env variable to a free port.');
+    process.exit(1);
+  }
+  console.error('Server error:', err);
 });
 
 module.exports = app;

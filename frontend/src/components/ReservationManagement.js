@@ -79,7 +79,8 @@ export default function ReservationManagement() {
   };
 
   const selectRoom = (roomId) => {
-    setFormData({ ...formData, roomId: roomId });
+    // Store room id as string for consistent comparisons across UI and API
+    setFormData({ ...formData, roomId: String(roomId) });
   };
 
   const handleSearch = async (e) => {
@@ -271,7 +272,7 @@ export default function ReservationManagement() {
                     {availableRooms.map(room => (
                       <div
                         key={room.id}
-                        className={`room-card ${formData.roomId === room.id ? 'selected' : ''}`}
+                        className={`room-card ${formData.roomId === String(room.id) ? 'selected' : ''}`}
                         onClick={() => selectRoom(room.id)}
                       >
                         <div className="room-header">
@@ -286,7 +287,7 @@ export default function ReservationManagement() {
                           <p><strong>Status:</strong> <span className="available">Available</span></p>
                         </div>
                         <div className="room-selection-indicator">
-                          {formData.roomId == room.id ? '✓ Selected' : 'Click to select'}
+                          {formData.roomId === String(room.id) ? '✓ Selected' : 'Click to select'}
                         </div>
                       </div>
                     ))}

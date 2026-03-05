@@ -22,8 +22,8 @@ class ReservationService {
         console.log('DEBUG: No userId provided, using system/anonymous creator');
       }
 
-      // Validate room exists and is available
-      if (roomId && roomId.trim() !== '') {
+      // Validate room exists and is available. Coerce to string safely.
+      if (roomId !== undefined && String(roomId).trim() !== '') {
         const roomExists = await conn.query('SELECT id FROM rooms WHERE id = ?', [roomId]);
         if (!roomExists[0] || roomExists[0].length === 0) {
           throw new Error('Invalid room ID - room does not exist');

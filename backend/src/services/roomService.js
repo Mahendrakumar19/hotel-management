@@ -2,6 +2,22 @@ const pool = require('../database/connection');
 const { v4: uuidv4 } = require('uuid');
 
 class RoomService {
+  async createRoom(roomNumber, roomType = 'standard', capacity = 1, baseRate = 0, status = 'vacant') {
+    try {
+      const id = uuidv4();
+
+      await pool.query(
+        `INSERT INTO rooms (id, room_number, room_type, status, capacity, base_rate)
+         VALUES (?, ?, ?, ?, ?, ?)`,
+        [id, roomNumber, roomType, status, capacity, baseRate]
+      );
+
+      const result = await pool.query('SELECT * FROM rooms WHERE id = ?', [id]);
+      return result[0][0];
+    } catch (error) {
+      throw error;
+    }
+  }
   async getAllRooms(status = null) {
     try {
       let query = 'SELECT * FROM rooms';
@@ -108,19 +124,22 @@ class RoomService {
 
   async getAvailableRooms(checkInDate, checkOutDate, capacity = 1) {
     try {
+      // Exclude rooms with reservations that overlap the requested date range
+      // Overlap condition: NOT (existing.check_out_date <= requested.check_in OR existing.check_in_date >= requested.check_out)
       const result = await pool.query(`
         SELECT r.* FROM rooms r
         WHERE r.status = 'vacant'
         AND r.capacity >= ?
         AND r.id NOT IN (
-          SELECT DISTINCT r2.id FROM rooms r2
-          INNER JOIN check_ins ci ON ci.room_id = r2.id
-          INNER JOIN reservations res ON res.id = ci.reservation_id
-          WHERE res.check_in_date <= ?
-          AND res.check_out_date >= ?
+          SELECT DISTINCT res.room_id FROM reservations res
+          WHERE res.status != 'cancelled'
+          AND NOT (
+            res.check_out_date <= ?
+            OR res.check_in_date >= ?
+          )
         )
         ORDER BY r.base_rate ASC
-      `, [capacity, checkOutDate, checkInDate]);
+      `, [capacity, checkInDate, checkOutDate]);
 
       return result[0];
     } catch (error) {

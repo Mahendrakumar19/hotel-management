@@ -10,7 +10,8 @@ class ReservationController {
         return res.status(400).json({ error: 'Missing required fields: guestId, roomId, checkInDate, checkOutDate' });
       }
 
-      if (roomId.trim() === '') {
+      // Accept numeric or string roomId; coerce to string for validation
+      if (!String(roomId || '').trim()) {
         return res.status(400).json({ error: 'Room selection is required' });
       }
 

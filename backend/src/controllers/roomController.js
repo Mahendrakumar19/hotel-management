@@ -1,6 +1,27 @@
 const roomService = require('../services/roomService');
 
 class RoomController {
+  async createRoom(req, res, next) {
+    try {
+      const { roomNumber, roomType, capacity, baseRate, status } = req.body;
+
+      if (!roomNumber || !roomType || !capacity || !baseRate) {
+        return res.status(400).json({ error: 'roomNumber, roomType, capacity and baseRate are required' });
+      }
+
+      const room = await roomService.createRoom(
+        roomNumber,
+        roomType,
+        parseInt(capacity, 10),
+        parseFloat(baseRate),
+        status || 'vacant'
+      );
+
+      res.status(201).json({ message: 'Room created successfully', room });
+    } catch (error) {
+      next(error);
+    }
+  }
   async getAllRooms(req, res, next) {
     try {
       const { status } = req.query;
