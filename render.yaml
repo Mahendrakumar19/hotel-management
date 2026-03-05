@@ -3,8 +3,8 @@ services:
     name: hotel-management-api
     env: node
     plan: free
-    buildCommand: npm run build
-    startCommand: npm start
+    buildCommand: npm install --prefix backend && npm install --prefix frontend && cd frontend && npm run build
+    startCommand: cd backend && npm start
     envVars:
       - key: NODE_ENV
         value: production
@@ -15,4 +15,6 @@ services:
       - key: DATABASE_PATH
         value: ./hotel_management.db
       - key: CORS_ORIGIN
-        value: https://<frontend-service-name>.onrender.com
+        value: https://your-frontend-domain.onrender.com
+      - key: REACT_APP_API_URL
+        value: https://hotel-management-api.onrender.com/api
