@@ -4,7 +4,10 @@ WORKDIR /app
 
 COPY package*.json ./
 
-RUN npm ci --only=production
+# Install build dependencies required for compiling native modules, install packages, then remove build deps
+RUN apk add --no-cache --virtual .build-deps python3 build-base linux-headers \
+    && npm ci --only=production \
+    && apk del .build-deps
 
 COPY . .
 

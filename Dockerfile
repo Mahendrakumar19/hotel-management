@@ -19,7 +19,10 @@ WORKDIR /app/backend
 
 COPY backend/package*.json ./
 
-RUN npm ci --only=production
+# Install build dependencies for native modules, install production deps, then remove build deps
+RUN apk add --no-cache --virtual .build-deps python3 build-base linux-headers \
+    && npm ci --only=production \
+    && apk del .build-deps
 
 COPY backend/ .
 
