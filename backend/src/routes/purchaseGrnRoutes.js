@@ -1,25 +1,12 @@
 const express = require('express');
 const router = express.Router();
 const purchaseGrnController = require('../controllers/purchaseGrnController');
-const auth = require('../middleware/auth');
+const { authMiddleware } = require('../middleware/auth');
 
 // All routes require authentication
-router.use(auth);
+router.use(authMiddleware);
 
-/**
- * @route   POST /api/purchase-grn
- * @desc    Create a new GRN
- * @access  Private (Admin, Store Manager)
- */
-router.post('/', purchaseGrnController.createGrn);
-
-/**
- * @route   GET /api/purchase-grn
- * @desc    Get all GRNs with optional filters
- * @access  Private
- */
-router.get('/', purchaseGrnController.getAllGrns);
-
+// Specific routes before parameterized routes
 /**
  * @route   GET /api/purchase-grn/statistics
  * @desc    Get GRN statistics
@@ -40,6 +27,20 @@ router.get('/pending-count', purchaseGrnController.getPendingCount);
  * @access  Private
  */
 router.get('/vendors', purchaseGrnController.getVendorsList);
+
+/**
+ * @route   POST /api/purchase-grn
+ * @desc    Create a new GRN
+ * @access  Private (Admin, Store Manager)
+ */
+router.post('/', purchaseGrnController.createGrn);
+
+/**
+ * @route   GET /api/purchase-grn
+ * @desc    Get all GRNs with optional filters
+ * @access  Private
+ */
+router.get('/', purchaseGrnController.getAllGrns);
 
 /**
  * @route   GET /api/purchase-grn/invoice/:invoiceNumber

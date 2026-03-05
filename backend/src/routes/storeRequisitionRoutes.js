@@ -1,10 +1,25 @@
 const express = require('express');
 const router = express.Router();
 const storeRequisitionController = require('../controllers/storeRequisitionController');
-const auth = require('../middleware/auth');
+const { authMiddleware } = require('../middleware/auth');
 
 // All routes require authentication
-router.use(auth);
+router.use(authMiddleware);
+
+// Specific routes before parameterized routes
+/**
+ * @route   GET /api/store-requisitions/statistics
+ * @desc    Get store requisition statistics
+ * @access  Private
+ */
+router.get('/statistics', storeRequisitionController.getStatistics);
+
+/**
+ * @route   GET /api/store-requisitions/pending-count
+ * @desc    Get pending requisitions count
+ * @access  Private
+ */
+router.get('/pending-count', storeRequisitionController.getPendingCount);
 
 /**
  * @route   POST /api/store-requisitions
@@ -19,20 +34,6 @@ router.post('/', storeRequisitionController.createRequisition);
  * @access  Private
  */
 router.get('/', storeRequisitionController.getAllRequisitions);
-
-/**
- * @route   GET /api/store-requisitions/statistics
- * @desc    Get store requisition statistics
- * @access  Private
- */
-router.get('/statistics', storeRequisitionController.getStatistics);
-
-/**
- * @route   GET /api/store-requisitions/pending-count
- * @desc    Get pending requisitions count
- * @access  Private
- */
-router.get('/pending-count', storeRequisitionController.getPendingCount);
 
 /**
  * @route   GET /api/store-requisitions/:id
